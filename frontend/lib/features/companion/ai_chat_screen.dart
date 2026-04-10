@@ -1,5 +1,11 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
-import '../../shared/glass_container.dart';
+import 'package:flutter/services.dart';
+import '../../core/theme/app_colors.dart';
+import '../../shared/widgets/gradient_background.dart';
+import 'widgets/chat_bubble.dart';
+import 'widgets/typing_indicator.dart';
+import 'widgets/suggested_prompts.dart';
 
 class AiChatScreen extends StatefulWidget {
   const AiChatScreen({super.key});
@@ -10,124 +16,234 @@ class AiChatScreen extends StatefulWidget {
 
 class _AiChatScreenState extends State<AiChatScreen> {
   final TextEditingController _controller = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  bool _isTyping = false;
+  bool _showPrompts = true;
+
   final List<Map<String, String>> _messages = [
-    {"role": "ai", "text": "Hi Garv, I'm Renkai. I'm here to listen. How are you feeling right now?"}
+    {
+      'role': 'ai',
+      'text':
+          "Hi there 💜 I'm Renkai, your emotional wellness companion. I'm here to listen with empathy and help you find calm. How are you feeling right now?"
+    },
   ];
-  bool _isLoading = false;
 
-  void _sendMessage() async {
-    final text = _controller.text.trim();
-    if (text.isEmpty) return;
+  final _aiResponses = [
+    "I hear you, and your feelings are completely valid. It's brave of you to share this. Let's take a moment to ground ourselves — can you name 3 things you can see right now?",
+    "Thank you for opening up. I notice you've been feeling this way recently. Research shows that journaling about these moments can help. Would you like to try a quick reflection exercise?",
+    "That's a powerful insight. I'm proud of you for recognizing this. Remember, growth isn't linear — every step counts, even the small ones. 🌱",
+    "I understand. Let's try a cognitive reframing exercise: What's one alternative way to look at this situation? Sometimes shifting perspective can lighten the weight.",
+  ];
 
+  int _responseIndex = 0;
+
+  void _sendMessage(String text) async {
+    if (text.trim().isEmpty) return;
+
+    HapticFeedback.lightImpact();
     setState(() {
-      _messages.add({"role": "user", "text": text});
-      _isLoading = true;
+      _messages.add({'role': 'user', 'text': text.trim()});
+      _isTyping = true;
+      _showPrompts = false;
     });
     _controller.clear();
+    _scrollToBottom();
 
-    // Mock API call to Spring Boot
-    await Future.delayed(const Duration(seconds: 2));
+    await Future.delayed(const Duration(milliseconds: 1500));
 
-    setState(() {
-      _isLoading = false;
-      _messages.add({"role": "ai", "text": "I hear you. It's completely valid to feel that way. Tracking these moments helps us understand your patterns better. Would you like to do a quick 2-minute breathing exercise?"});
+    if (mounted) {
+      setState(() {
+        _isTyping = false;
+        _messages.add({
+          'role': 'ai',
+          'text': _aiResponses[_responseIndex % _aiResponses.length],
+        });
+        _responseIndex++;
+      });
+      _scrollToBottom();
+    }
+  }
+
+  void _scrollToBottom() {
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent + 100,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
     });
   }
 
   @override
+  void dispose() {
+    _controller.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF7F8FC),
-      appBar: AppBar(
-        title: const Text("Renkai Companion"),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16.0),
-              itemCount: _messages.length,
-              itemBuilder: (context, index) {
-                final message = _messages[index];
-                final isUser = message["role"] == "user";
-                return Align(
-                  alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
-                  child: Container(
-                    margin: const EdgeInsets.only(bottom: 16),
-                    padding: const EdgeInsets.all(16),
-                    constraints: BoxConstraints(
-                      maxWidth: MediaQuery.of(context).size.width * 0.75,
-                    ),
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    return GradientBackground(
+      colors: isDark ? AppColors.chatGradientDark : AppColors.chatGradient,
+      child: SafeArea(
+        child: Column(
+          children: [
+            // Header
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+              child: Row(
+                children: [
+                  Container(
+                    width: 42,
+                    height: 42,
                     decoration: BoxDecoration(
-                      color: isUser ? Theme.of(context).primaryColor : Colors.white,
-                      borderRadius: BorderRadius.only(
-                        topLeft: const Radius.circular(20),
-                        topRight: const Radius.circular(20),
-                        bottomLeft: isUser ? const Radius.circular(20) : const Radius.circular(0),
-                        bottomRight: isUser ? const Radius.circular(0) : const Radius.circular(20),
+                      gradient: LinearGradient(
+                        colors: [AppColors.primary, AppColors.accent],
                       ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 10,
-                          offset: const Offset(0, 5),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Center(
+                      child: Text('✨', style: TextStyle(fontSize: 20)),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Renkai',
+                          style: Theme.of(context).textTheme.headlineSmall,
+                        ),
+                        Row(
+                          children: [
+                            Container(
+                              width: 8,
+                              height: 8,
+                              decoration: BoxDecoration(
+                                color: AppColors.accent,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              _isTyping ? 'typing...' : 'Online • Listening',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                    child: Text(
-                      message["text"]!,
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: isUser ? Colors.white : Colors.black87,
-                      ),
-                    ),
                   ),
-                );
-              },
-            ),
-          ),
-          if (_isLoading)
-            const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text("Renkai is typing...", style: TextStyle(color: Colors.black54)),
+                  IconButton(
+                    onPressed: () {},
+                    icon: const Icon(Icons.more_vert_rounded),
+                  ),
+                ],
               ),
             ),
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: GlassContainer(
-                blur: 20,
-                color: Colors.white.withOpacity(0.8),
-                borderRadius: 30,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _controller,
-                          decoration: const InputDecoration(
-                            hintText: "Type a message...",
-                            border: InputBorder.none,
+
+            const Divider(height: 1, indent: 20, endIndent: 20),
+
+            // Messages
+            Expanded(
+              child: ListView.builder(
+                controller: _scrollController,
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                itemCount: _messages.length + (_isTyping ? 1 : 0),
+                itemBuilder: (context, index) {
+                  if (index == _messages.length && _isTyping) {
+                    return const TypingIndicator();
+                  }
+                  final msg = _messages[index];
+                  return ChatBubble(
+                    text: msg['text']!,
+                    isUser: msg['role'] == 'user',
+                    index: index,
+                  );
+                },
+              ),
+            ),
+
+            // Suggested prompts
+            if (_showPrompts)
+              SuggestedPrompts(onPromptTap: (prompt) {
+                _controller.text = prompt;
+                _sendMessage(prompt);
+              }),
+
+            // Input bar
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(28),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? Colors.white.withOpacity(0.08)
+                          : Colors.white.withOpacity(0.8),
+                      borderRadius: BorderRadius.circular(28),
+                      border: Border.all(
+                        color: isDark
+                            ? Colors.white.withOpacity(0.1)
+                            : Colors.white.withOpacity(0.5),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: TextField(
+                            controller: _controller,
+                            style: const TextStyle(fontSize: 15),
+                            decoration: InputDecoration(
+                              hintText: 'Type a message...',
+                              hintStyle: TextStyle(
+                                color: isDark
+                                    ? AppColors.textSecondaryDark
+                                    : AppColors.textSecondaryLight,
+                              ),
+                              border: InputBorder.none,
+                              filled: false,
+                              isDense: true,
+                              contentPadding:
+                                  const EdgeInsets.symmetric(vertical: 10),
+                            ),
+                            onSubmitted: _sendMessage,
                           ),
-                          onSubmitted: (_) => _sendMessage(),
                         ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.send, color: Color(0xFF8C9EFF)),
-                        onPressed: _sendMessage,
-                      ),
-                    ],
+                        Container(
+                          width: 42,
+                          height: 42,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [AppColors.primary, AppColors.primaryDark],
+                            ),
+                            shape: BoxShape.circle,
+                          ),
+                          child: IconButton(
+                            onPressed: () => _sendMessage(_controller.text),
+                            icon: const Icon(Icons.arrow_upward_rounded,
+                                color: Colors.white, size: 22),
+                            padding: EdgeInsets.zero,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

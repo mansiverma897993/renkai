@@ -41,13 +41,18 @@ public class AiService {
         HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
 
         try {
+            @SuppressWarnings("rawtypes")
             ResponseEntity<Map> response = restTemplate.postForEntity(url, entity, Map.class);
-            // Minimal parsing for demo purposes
-            Map<String, Object> body = response.getBody();
+            
+            @SuppressWarnings("unchecked")
+            Map<String, Object> body = (Map<String, Object>) response.getBody();
             if (body != null && body.containsKey("candidates")) {
+                @SuppressWarnings("unchecked")
                 List<Map<String, Object>> candidates = (List<Map<String, Object>>) body.get("candidates");
                 if (!candidates.isEmpty()) {
+                    @SuppressWarnings("unchecked")
                     Map<String, Object> content = (Map<String, Object>) candidates.get(0).get("content");
+                    @SuppressWarnings("unchecked")
                     List<Map<String, Object>> parts = (List<Map<String, Object>>) content.get("parts");
                     return (String) parts.get(0).get("text");
                 }
