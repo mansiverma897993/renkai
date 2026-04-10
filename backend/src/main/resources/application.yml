@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: RenkaiBackend
+  datasource:
+    url: jdbc:postgresql://localhost:5432/renkai_db
+    username: renkai
+    password: renkai_password
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+server:
+  port: 8080
+
+renkai:
+  ai:
+    gemini:
+      api-key: ${GEMINI_API_KEY:your_dummy_api_key_here}
+      url: "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent"
