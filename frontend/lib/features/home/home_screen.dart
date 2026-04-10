@@ -1,154 +1,327 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
-import '../../shared/widgets/gradient_background.dart';
-import 'widgets/greeting_header.dart';
-import 'widgets/mood_checkin_card.dart';
-import 'widgets/quick_actions_grid.dart';
-import 'widgets/wellness_ring.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    return GradientBackground(
-      colors: isDark ? AppColors.homeGradientDark : AppColors.homeGradient,
-      child: SafeArea(
-        child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const GreetingHeader(),
-              const SizedBox(height: 28),
-              const MoodCheckinCard(),
-              const SizedBox(height: 20),
-              const WellnessRing(),
-              const SizedBox(height: 24),
-              Text(
-                'Quick Actions',
-                style: Theme.of(context).textTheme.headlineSmall,
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Top Section with curved yellow shape & logo
+            SizedBox(
+              height: 280,
+              child: Stack(
+                children: [
+                  // Circular decoration for yellow shape
+                  Positioned(
+                    top: -100,
+                    left: -100,
+                    child: Container(
+                      width: 450,
+                      height: 450,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFFFC107), // Yellow curve
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    top: -120,
+                    left: -120,
+                    child: Container(
+                      width: 450,
+                      height: 450,
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withOpacity(0.9), // Orange shape behind
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    top: -100,
+                    left: -100,
+                    child: Container(
+                      width: 420,
+                      height: 420,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFFFCA28), // Golden Yellow curve
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ),
+                  
+                  SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Icon(Icons.menu, size: 35, color: Colors.black),
+                              // Top Right Logo
+                              Column(
+                                children: [
+                                  Container(
+                                    width: 60,
+                                    height: 60,
+                                    decoration: const BoxDecoration(
+                                      color: AppColors.primary,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: const Icon(Icons.spa_rounded, color: Colors.white, size: 35),
+                                  ),
+                                  const Text('RENKAI', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black)),
+                                ],
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          const Text(
+                            'Welcome\nSage',
+                            style: TextStyle(
+                              fontSize: 38,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.black,
+                              height: 1.1,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  
+                  // Reminders Card
+                  Positioned(
+                    right: 20,
+                    bottom: 0,
+                    child: Container(
+                      width: 200,
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary, // Orange remidners card
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Reminders',
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.black),
+                          ),
+                          const SizedBox(height: 8),
+                          _buildReminderItem('Take Medicine @ 2:00pm'),
+                          const SizedBox(height: 8),
+                          _buildReminderItem('Evening Walk @ 5:00pm'),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 14),
-              QuickActionsGrid(
-                onActionTap: (index) {
-                  // Navigation is handled by AppShell's PageController
-                },
+            ),
+            
+            const SizedBox(height: 30),
+            
+            // Today's Progress Section
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: Text(
+                'Today\'s Progress',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black),
               ),
-              const SizedBox(height: 24),
-              _buildDailyPlan(context, isDark),
-            ],
-          ),
+            ),
+            
+            const SizedBox(height: 10),
+            
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+              color: const Color(0xFFFFC107), // Yellow background banner
+              child: Row(
+                children: [
+                  // Donut chart text left
+                  const Expanded(
+                    flex: 1,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text('Remaining', style: TextStyle(fontSize: 10, color: Colors.black)),
+                        Text('33%', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black)),
+                        SizedBox(height: 40), // spacer for pie
+                      ],
+                    ),
+                  ),
+                  
+                  // Donut Chart Placeholder
+                  Container(
+                    width: 140,
+                    height: 140,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: const Color(0xFF00C853), // Green pie part
+                      border: Border.all(color: Colors.white, width: 20),
+                    ),
+                    child: Container(
+                      margin: const EdgeInsets.all(25),
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Color(0xFFFFC107), // yellow center punch
+                      ),
+                    ),
+                  ),
+                  
+                  // Right sides text
+                  const Expanded(
+                    flex: 2,
+                    child: Padding(
+                      padding: EdgeInsets.only(left: 10),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(height: 60), // spacer for pie
+                          Text('Completed', style: TextStyle(fontSize: 10, color: Colors.black)),
+                          Text('67%', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black)),
+                        ],
+                      ),
+                    ),
+                  ),
+                  
+                  // Progress Bars
+                  Expanded(
+                    flex: 3,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildProgressBar('Stress Levels', 0.5),
+                        const SizedBox(height: 10),
+                        _buildProgressBar('Task Completion', 0.8),
+                        const SizedBox(height: 10),
+                        _buildProgressBar('Mood Tracker', 0.9),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                ],
+              ),
+            ),
+            
+            const SizedBox(height: 30),
+            
+            // Self Help Tools Section
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: Text(
+                'Self Help Tools',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black),
+              ),
+            ),
+            const SizedBox(height: 15),
+            
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Container(
+                padding: const EdgeInsets.all(15),
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(15),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFCA28), // Golden Yellow
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          _buildToolItem(Icons.menu_book, 'Journaling'),
+                          _buildToolItem(Icons.checklist_rtl_rounded, 'To-Do List'),
+                          _buildToolItem(Icons.psychology, 'WellBeing'),
+                          _buildToolItem(Icons.medical_services, 'Therapy'),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    const Text('See more>>>', style: TextStyle(fontSize: 12, decoration: TextDecoration.underline, color: Colors.black)),
+                  ],
+                ),
+              ),
+            ),
+            
+            const SizedBox(height: 40),
+          ],
         ),
+      ),
+      
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {},
+        backgroundColor: Colors.white, // Chatbot floating button
+        elevation: 4,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
+        child: const Icon(Icons.support_agent_rounded, color: Colors.blueAccent, size: 30),
       ),
     );
   }
 
-  Widget _buildDailyPlan(BuildContext context, bool isDark) {
-    final tasks = [
-      _PlanTask('Morning Meditation', '🧘', '5 min', true),
-      _PlanTask('Journal Reflection', '✍️', '10 min', false),
-      _PlanTask('Breathing Exercise', '🌬️', '3 min', false),
-      _PlanTask('Gratitude Log', '🙏', '5 min', false),
-    ];
+  Widget _buildReminderItem(String text) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFCA28),
+        border: Border.all(color: Colors.black, width: 0.5),
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(text, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Colors.black)),
+    );
+  }
 
+  Widget _buildProgressBar(String title, double progress) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text("Today's Plan", style: Theme.of(context).textTheme.headlineSmall),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        Text(title, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black)),
+        const SizedBox(height: 2),
+        Container(
+          height: 8,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border.all(color: Colors.black, width: 1),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: FractionallySizedBox(
+            alignment: Alignment.centerLeft,
+            widthFactor: progress,
+            child: Container(
               decoration: BoxDecoration(
-                color: AppColors.accent.withOpacity(0.15),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Text(
-                '1/4 done',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.accent,
-                ),
+                color: const Color(0xFF00C853),
+                borderRadius: BorderRadius.circular(3),
               ),
             ),
-          ],
-        ),
-        const SizedBox(height: 14),
-        SizedBox(
-          height: 110,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            physics: const BouncingScrollPhysics(),
-            itemCount: tasks.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 12),
-            itemBuilder: (context, index) {
-              final task = tasks[index];
-              return Container(
-                width: 140,
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: task.done
-                      ? AppColors.accent.withOpacity(isDark ? 0.15 : 0.1)
-                      : (isDark ? AppColors.surfaceDark : Colors.white.withOpacity(0.7)),
-                  borderRadius: BorderRadius.circular(18),
-                  border: Border.all(
-                    color: task.done
-                        ? AppColors.accent.withOpacity(0.3)
-                        : (isDark ? Colors.white.withOpacity(0.08) : Colors.white.withOpacity(0.5)),
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(task.emoji, style: const TextStyle(fontSize: 24)),
-                        if (task.done)
-                          Icon(Icons.check_circle, color: AppColors.accent, size: 20),
-                      ],
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          task.title,
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            decoration: task.done ? TextDecoration.lineThrough : null,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        Text(
-                          task.duration,
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              );
-            },
           ),
         ),
       ],
     );
   }
-}
 
-class _PlanTask {
-  final String title;
-  final String emoji;
-  final String duration;
-  final bool done;
-  const _PlanTask(this.title, this.emoji, this.duration, this.done);
+  Widget _buildToolItem(IconData icon, String label) {
+    return Column(
+      children: [
+        Icon(icon, size: 35, color: Colors.blue[800]),
+        const SizedBox(height: 8),
+        Text(label, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black)),
+      ],
+    );
+  }
 }

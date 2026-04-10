@@ -2,38 +2,38 @@ import 'package:flutter/material.dart';
 
 class AppColors {
   // ── Primary Palette ──
-  static const primary = Color(0xFF8B9FFF);
-  static const primaryLight = Color(0xFFA0B0FF);
-  static const primaryDark = Color(0xFF6B7FDF);
+  static const primary = Color(0xFFF38D2F); // Figma Orange
+  static const primaryLight = Color(0xFFF9A85C);
+  static const primaryDark = Color(0xFFD67319);
 
-  // ── Secondary (Peach/Coral) ──
-  static const secondary = Color(0xFFFFB088);
-  static const secondaryLight = Color(0xFFFFBB99);
+  // ── Secondary ──
+  static const secondary = Color(0xFF2C3140); // Dark text color on logo / accents
+  static const secondaryLight = Color(0xFF4C5160);
 
-  // ── Accent (Soft Teal) ──
-  static const accent = Color(0xFF7DD3C2);
-  static const accentLight = Color(0xFF8DE0D0);
+  // ── Accent (Green for charts) ──
+  static const accent = Color(0xFF00C853);
+  static const accentLight = Color(0xFF5EFB83);
 
-  // ── Danger (SOS) ──
+  // ── Danger ──
   static const danger = Color(0xFFFF6B6B);
   static const dangerLight = Color(0xFFFF7B7B);
 
   // ── Backgrounds ──
-  static const bgLight = Color(0xFFF7F8FC);
-  static const bgDark = Color(0xFF0F0F1A);
+  static const bgLight = Color(0xFFFFFFFF); // White background
+  static const bgDark = Color(0xFF121212);
 
   // ── Surfaces / Cards ──
-  static const surfaceLight = Color(0xB3FFFFFF); // white @ 70%
-  static const surfaceDark = Color(0xCC1A1A2E);  // #1A1A2E @ 80%
+  static const surfaceLight = Color(0xFFFFFFFF);
+  static const surfaceDark = Color(0xFF1E1E1E);
 
   // ── Glass effects ──
-  static const glassBorderLight = Color(0x4DFFFFFF); // white 30%
-  static const glassBorderDark = Color(0x33FFFFFF);   // white 20%
-  static const glassFillLight = Color(0x3DFFFFFF);    // white 24%
-  static const glassFillDark = Color(0x1AFFFFFF);     // white 10%
+  static const glassBorderLight = Color(0x4DFFFFFF);
+  static const glassBorderDark = Color(0x33FFFFFF);
+  static const glassFillLight = Color(0x3DFFFFFF);
+  static const glassFillDark = Color(0x1AFFFFFF);
 
   // ── Text ──
-  static const textPrimaryLight = Color(0xFF1A1A2E);
+  static const textPrimaryLight = Color(0xFF000000); // Black text typical for Figma
   static const textSecondaryLight = Color(0xFF6B7280);
   static const textPrimaryDark = Color(0xFFF0F0F5);
   static const textSecondaryDark = Color(0xFF9CA3AF);
@@ -46,15 +46,15 @@ class AppColors {
   static const moodGreat = Color(0xFF6BCB77);
 
   // ── Screen Gradients ──
-  static const homeGradient = [Color(0xFFE8D5FF), Color(0xFFD5E8FF)];
-  static const chatGradient = [Color(0xFFFFE8D5), Color(0xFFFFD5E8)];
-  static const journalGradient = [Color(0xFFD5FFE8), Color(0xFFD5F0FF)];
-  static const profileGradient = [Color(0xFFFFD5E8), Color(0xFFE8D5FF)];
+  static const homeGradient = [Color(0xFFFFFFFF), Color(0xFFFFFFFF)];
+  static const chatGradient = [Color(0xFFFFFFFF), Color(0xFFFFFFFF)];
+  static const journalGradient = [Color(0xFFFFFFFF), Color(0xFFFFFFFF)];
+  static const profileGradient = [Color(0xFFFFFFFF), Color(0xFFFFFFFF)];
 
-  static const homeGradientDark = [Color(0xFF1A0F2E), Color(0xFF0F1A2E)];
-  static const chatGradientDark = [Color(0xFF2E1A0F), Color(0xFF2E0F1A)];
-  static const journalGradientDark = [Color(0xFF0F2E1A), Color(0xFF0F1E2E)];
-  static const profileGradientDark = [Color(0xFF2E0F1A), Color(0xFF1A0F2E)];
+  static const homeGradientDark = [Color(0xFF121212), Color(0xFF121212)];
+  static const chatGradientDark = [Color(0xFF121212), Color(0xFF121212)];
+  static const journalGradientDark = [Color(0xFF121212), Color(0xFF121212)];
+  static const profileGradientDark = [Color(0xFF121212), Color(0xFF121212)];
 
   static Color moodColor(double score) {
     if (score <= 2) return moodTerrible;

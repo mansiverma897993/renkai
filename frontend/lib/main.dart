@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/theme/app_theme.dart';
-import 'app_shell.dart';
+import 'features/auth/splash_screen.dart';
 
 void main() {
   runApp(
@@ -21,8 +21,8 @@ class RenkaiApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
-      themeMode: ThemeMode.system, // Respect system settings
-      home: const AppShell(),
+      themeMode: ThemeMode.light, // Forcing light theme for proper Figma tracking
+      home: const SplashScreen(),
     );
   }
 }
