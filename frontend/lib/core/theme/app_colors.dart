@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 class AppColors {
   // ── Primary Palette ──
-  static const primary = Color(0xFFF38D2F); // Figma Orange
-  static const primaryLight = Color(0xFFF9A85C);
-  static const primaryDark = Color(0xFFD67319);
+  static const primary = Color(0xFFFF9800); // UI Vibrant Orange
+  static const primaryLight = Color(0xFFFFB74D);
+  static const primaryDark = Color(0xFFF57C00);
 
   // ── Secondary ──
   static const secondary = Color(0xFF2C3140); // Dark text color on logo / accents

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
+import '../wellbeing/presentation/wellbeing_screen.dart';
+import '../therapy/presentation/therapy_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -244,10 +246,10 @@ class HomeScreen extends StatelessWidget {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          _buildToolItem(Icons.menu_book, 'Journaling'),
-                          _buildToolItem(Icons.checklist_rtl_rounded, 'To-Do List'),
-                          _buildToolItem(Icons.psychology, 'WellBeing'),
-                          _buildToolItem(Icons.medical_services, 'Therapy'),
+                          _buildToolItem(context, Icons.menu_book, 'Journaling', () {}),
+                          _buildToolItem(context, Icons.checklist_rtl_rounded, 'To-Do List', () {}),
+                          _buildToolItem(context, Icons.psychology, 'Wellbeing', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const WellbeingScreen()))),
+                          _buildToolItem(context, Icons.medical_services, 'Therapy', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TherapyScreen()))),
                         ],
                       ),
                     ),
@@ -315,13 +317,16 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildToolItem(IconData icon, String label) {
-    return Column(
-      children: [
-        Icon(icon, size: 35, color: Colors.blue[800]),
-        const SizedBox(height: 8),
-        Text(label, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black)),
-      ],
+  Widget _buildToolItem(BuildContext context, IconData icon, String label, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Icon(icon, size: 35, color: Colors.blue[800]),
+          const SizedBox(height: 8),
+          Text(label, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black)),
+        ],
+      ),
     );
   }
 }
