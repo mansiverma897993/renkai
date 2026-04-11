@@ -22,14 +22,12 @@ class _AppShellState extends State<AppShell> with TickerProviderStateMixin {
     HomeScreen(),
     AiChatScreen(),
     JournalScreen(),
-    ProfileScreen(),
   ];
 
   final _navItems = const [
     _NavItem(icon: Icons.home_rounded, activeIcon: Icons.home_rounded, label: 'Home'),
     _NavItem(icon: Icons.chat_bubble_outline_rounded, activeIcon: Icons.chat_bubble_rounded, label: 'Chat'),
     _NavItem(icon: Icons.book_outlined, activeIcon: Icons.book_rounded, label: 'Journal'),
-    _NavItem(icon: Icons.person_outline_rounded, activeIcon: Icons.person_rounded, label: 'Profile'),
   ];
 
   @override

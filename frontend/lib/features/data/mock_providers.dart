@@ -1,13 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 // --- Models ---
-class ChatMessage {
-  final String text;
-  final bool isUser;
-  final List<String>? options;
-  ChatMessage({required this.text, required this.isUser, this.options});
-}
-
 class TherapyTeam {
   final String name;
   final String title;
@@ -36,15 +29,6 @@ class WellbeingMetrics {
 }
 
 // --- Providers ---
-final chatProvider = StateProvider<List<ChatMessage>>((ref) => [
-  ChatMessage(text: "Hi Sage,\nHow would you like me to assist you.", isUser: false, options: [
-    "Mental Health Assessment Test",
-    "Book A Therapy",
-    "Emergency Support",
-    "Have a chat 😅"
-  ]),
-]);
-
 final therapyTeamProvider = Provider<List<TherapyTeam>>((ref) => [
   TherapyTeam(name: "Dr. Maahi Madaan", title: "Therapist", imageUrl: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150"),
   TherapyTeam(name: "Dr. Jessica", title: "Therapist", imageUrl: "https://images.unsplash.com/photo-1594824432258-297ab13f41c6?w=150"),

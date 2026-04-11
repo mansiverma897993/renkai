@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_colors.dart';
+import '../../shared/widgets/placeholder_screen.dart';
 import '../wellbeing/presentation/wellbeing_screen.dart';
-import '../mindfulness/presentation/mindfulness_hub_screen.dart';
 import '../therapy/presentation/therapy_screen.dart';
 import '../community/presentation/community_screen.dart';
-import '../data/mock_providers.dart';
-import '../../shared/widgets/placeholder_screen.dart';
+import '../mindfulness/presentation/mindfulness_hub_screen.dart';
 
-class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
+class ProfileDrawer extends StatelessWidget {
+  const ProfileDrawer({super.key});
 
   void _pushPlaceholder(BuildContext context, String title) {
     Navigator.push(context, MaterialPageRoute(builder: (_) => PlaceholderScreen(title: title)));
@@ -17,51 +15,41 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return Drawer(
       backgroundColor: Colors.white,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(130),
-        child: Container(
-          color: const Color(0xFFFFC107),
-          child: SafeArea(
-            bottom: false,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 40,
-                    backgroundImage: const NetworkImage("https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=150"),
-                    backgroundColor: Colors.grey[200],
-                  ),
-                  const SizedBox(width: 20),
-                  Column(
+      child: Column(
+        children: [
+          Container(
+            padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 20, bottom: 20, left: 20, right: 20),
+            color: const Color(0xFFFFC107),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 35,
+                  backgroundImage: const NetworkImage("https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=150"),
+                  backgroundColor: Colors.grey[200],
+                ),
+                const SizedBox(width: 15),
+                Expanded(
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text('Sage', style: Theme.of(context).textTheme.displaySmall?.copyWith(color: Colors.black, fontSize: 26, fontWeight: FontWeight.w900)),
+                      Text('Sage', style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.black, fontWeight: FontWeight.w900)),
                       const SizedBox(height: 4),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: const Text('Premium', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                        decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(20)),
+                        child: const Text('Premium', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
                       ),
                     ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
-        ),
-      ),
-      body: Column(
-        children: [
           Expanded(
             child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 25),
+              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
               children: [
                 _buildMenuItemRow(Icons.assignment, 'My Program', onTap: () => _pushPlaceholder(context, 'My Program')),
                 _buildMenuItemRow(Icons.build_circle, 'Self-help tools', onTap: () => _pushPlaceholder(context, 'Self-help tools')),
@@ -84,14 +72,14 @@ class ProfileScreen extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.settings, color: Colors.black54, size: 28),
+                  const Icon(Icons.settings, color: Colors.black54, size: 24),
                   const SizedBox(width: 10),
-                  const Text('Settings', style: TextStyle(fontSize: 18, color: Colors.black87, fontWeight: FontWeight.w600)),
+                  const Text('Settings', style: TextStyle(fontSize: 16, color: Colors.black87, fontWeight: FontWeight.w600)),
                 ],
               ),
             ),
           ),
-          const SizedBox(height: 80),
+          SizedBox(height: MediaQuery.of(context).padding.bottom + 10),
         ],
       ),
     );
@@ -99,23 +87,23 @@ class ProfileScreen extends StatelessWidget {
 
   Widget _buildMenuItemRow(IconData icon, String title, {VoidCallback? onTap, Color iconColor = Colors.black54}) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 20.0),
+      padding: const EdgeInsets.only(bottom: 10.0),
       child: InkWell(
         onTap: onTap ?? () {},
         borderRadius: BorderRadius.circular(8),
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          padding: const EdgeInsets.symmetric(vertical: 10.0),
           child: Row(
             children: [
-              Icon(icon, color: iconColor, size: 28),
-              const SizedBox(width: 20),
+              Icon(icon, color: iconColor, size: 24),
+              const SizedBox(width: 15),
               Expanded(
                 child: Text(
                   title,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Colors.black87),
+                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Colors.black87),
                 ),
               ),
-              const Icon(Icons.arrow_forward_ios_rounded, color: Colors.black26, size: 16),
+              const Icon(Icons.arrow_forward_ios_rounded, color: Colors.black26, size: 14),
             ],
           ),
         ),

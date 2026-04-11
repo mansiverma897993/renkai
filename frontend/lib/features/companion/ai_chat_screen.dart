@@ -1,14 +1,49 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../data/mock_providers.dart';
+import 'chat_provider.dart';
 import '../../core/theme/app_colors.dart';
 
-class AiChatScreen extends ConsumerWidget {
+class AiChatScreen extends ConsumerStatefulWidget {
   const AiChatScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final messages = ref.watch(chatProvider);
+  ConsumerState<AiChatScreen> createState() => _AiChatScreenState();
+}
+
+class _AiChatScreenState extends ConsumerState<AiChatScreen> {
+  final TextEditingController _msgController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+
+  void _sendMessage() {
+    final text = _msgController.text;
+    if (text.trim().isEmpty) return;
+    _msgController.clear();
+    ref.read(aiChatProvider.notifier).sendMessage(text);
+    _scrollToBottom();
+  }
+
+  void _scrollToBottom() {
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _msgController.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final messages = ref.watch(aiChatProvider);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -26,7 +61,7 @@ class AiChatScreen extends ConsumerWidget {
                   children: [
                     IconButton(
                       icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black, size: 28),
-                      onPressed: () {},
+                      onPressed: () => Navigator.pop(context),
                     ),
                     Expanded(
                       child: Column(
@@ -39,10 +74,10 @@ class AiChatScreen extends ConsumerWidget {
                               color: Colors.blue[100],
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(Icons.support_agent_rounded, size: 35, color: Colors.black87),
+                            child: const Icon(Icons.support_agent_rounded, size: 35, color: Colors.blueAccent),
                           ),
                           const SizedBox(height: 5),
-                          Text('Renki(AI Agent)', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900, color: Colors.black, fontSize: 18)),
+                          Text('Renki (AI)', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900, color: Colors.black, fontSize: 18)),
                         ],
                       ),
                     ),
@@ -58,6 +93,7 @@ class AiChatScreen extends ConsumerWidget {
         children: [
           Expanded(
             child: ListView.builder(
+              controller: _scrollController,
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               itemCount: messages.length,
               itemBuilder: (context, index) {
@@ -72,12 +108,20 @@ class AiChatScreen extends ConsumerWidget {
                         color: msg.isUser ? Colors.grey[200] : const Color(0xFFFFC107),
                         borderRadius: BorderRadius.circular(15),
                       ),
-                      child: Text(msg.text, style: const TextStyle(color: Colors.black, fontSize: 14)),
+                      child: msg.isLoading 
+                          ? const SizedBox(
+                              width: 20, height: 20, 
+                              child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black)
+                            )
+                          : Text(msg.text, style: const TextStyle(color: Colors.black, fontSize: 14)),
                     ),
                     if (msg.options != null) ...msg.options!.map((opt) => Padding(
                           padding: const EdgeInsets.only(bottom: 8.0, right: 40),
                           child: InkWell(
-                            onTap: () {},
+                            onTap: () {
+                              ref.read(aiChatProvider.notifier).sendMessage(opt);
+                              _scrollToBottom();
+                            },
                             child: Container(
                               padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
                               decoration: BoxDecoration(
@@ -102,6 +146,8 @@ class AiChatScreen extends ConsumerWidget {
                 children: [
                   Expanded(
                     child: TextField(
+                      controller: _msgController,
+                      onSubmitted: (_) => _sendMessage(),
                       decoration: InputDecoration(
                         hintText: 'Type Here....',
                         border: InputBorder.none,
@@ -114,7 +160,7 @@ class AiChatScreen extends ConsumerWidget {
                   ),
                   IconButton(
                     icon: const Icon(Icons.send, color: Colors.black87),
-                    onPressed: () {},
+                    onPressed: _sendMessage,
                   ),
                 ],
               ),
@@ -125,3 +171,4 @@ class AiChatScreen extends ConsumerWidget {
     );
   }
 }
+

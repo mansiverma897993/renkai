@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../shared/glass_container.dart';
 import '../../core/theme/app_colors.dart';
 import '../../app_shell.dart';
+import 'providers/current_mood_provider.dart';
 
-class MoodEntryScreen extends StatefulWidget {
+class MoodEntryScreen extends ConsumerStatefulWidget {
   const MoodEntryScreen({super.key});
 
   @override
-  State<MoodEntryScreen> createState() => _MoodEntryScreenState();
+  ConsumerState<MoodEntryScreen> createState() => _MoodEntryScreenState();
 }
 
-class _MoodEntryScreenState extends State<MoodEntryScreen> {
+class _MoodEntryScreenState extends ConsumerState<MoodEntryScreen> {
   double _moodScore = 5;
   final List<String> _tags = ["Work", "Sleep", "Stress", "Social", "Exercise", "Family"];
   final Set<String> _selectedTags = {};
@@ -98,8 +100,8 @@ class _MoodEntryScreenState extends State<MoodEntryScreen> {
               height: 56,
               child: ElevatedButton(
                 onPressed: () {
-                  // TODO: Send to Spring Boot Backend API
-                  _safePop(context);
+                  ref.read(currentMoodProvider.notifier).saveMood(_moodScore, _selectedTags.toList());
+                  Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => const AppShell()), (route) => false);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).primaryColor,

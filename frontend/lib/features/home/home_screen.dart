@@ -6,6 +6,10 @@ import '../therapy/presentation/therapy_screen.dart';
 import '../support/support_screen.dart';
 import '../data/mock_providers.dart';
 import '../../shared/widgets/renkai_logo.dart';
+import '../journal/journal_screen.dart';
+import '../../shared/widgets/placeholder_screen.dart';
+import '../mindfulness/presentation/mindfulness_hub_screen.dart';
+import '../profile/profile_drawer.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -125,6 +129,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
+      drawer: const ProfileDrawer(),
       body: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(
@@ -168,9 +173,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            IconButton(
-                              icon: const Icon(Icons.menu, size: 30, color: Colors.black),
-                              onPressed: () {},
+                            Builder(
+                              builder: (context) => IconButton(
+                                icon: const Icon(Icons.menu, size: 30, color: Colors.black),
+                                onPressed: () => Scaffold.of(context).openDrawer(),
+                              ),
                             ),
                             Row(
                               children: [
@@ -364,12 +371,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      _buildToolItem(context, Icons.menu_book, 'Journaling', () {
-                        // Using explicit push for demo
-                        Navigator.push(context, MaterialPageRoute(builder: (_) => const Scaffold(body: Center(child: Text("Journal Tool")))));
-                      }),
-                      _buildToolItem(context, Icons.checklist_rtl_rounded, 'To-Do List', () {}),
-                      _buildToolItem(context, Icons.psychology, 'Wellbeing', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const WellbeingScreen()))),
+                      _buildToolItem(context, Icons.menu_book, 'Journaling', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const JournalScreen()))),
+                      _buildToolItem(context, Icons.checklist_rtl_rounded, 'To-Do List', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PlaceholderScreen(title: 'To-Do list')))),
+                      _buildToolItem(context, Icons.psychology, 'Mindfulness Hub', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const MindfulnessHubScreen()))),
                       _buildToolItem(context, Icons.medical_services, 'Therapy', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TherapyScreen()))),
                     ],
                   ),
