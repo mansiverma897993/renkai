@@ -96,3 +96,85 @@ class JournalNotifier extends Notifier<List<JournalEntry>> {
 final journalProvider = NotifierProvider<JournalNotifier, List<JournalEntry>>(() {
   return JournalNotifier();
 });
+
+// --- New Models ---
+class AppUser {
+  final String id;
+  final String name;
+  final String email;
+  final String avatarUrl;
+  final String planType;
+
+  AppUser({required this.id, required this.name, required this.email, required this.avatarUrl, required this.planType});
+}
+
+class AssessmentData {
+  final Map<String, dynamic> answers;
+  AssessmentData({this.answers = const {}});
+}
+
+class TaskItem {
+  final String id;
+  final String title;
+  final String description;
+  final String time;
+  final String frequency;
+  final bool isCompleted;
+  final String type;
+
+  TaskItem({required this.id, required this.title, required this.description, required this.time, required this.frequency, this.isCompleted = false, required this.type});
+
+  TaskItem copyWith({String? id, String? title, String? description, String? time, String? frequency, bool? isCompleted, String? type}) {
+    return TaskItem(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      time: time ?? this.time,
+      frequency: frequency ?? this.frequency,
+      isCompleted: isCompleted ?? this.isCompleted,
+      type: type ?? this.type,
+    );
+  }
+}
+
+// --- New Providers ---
+final allUsersProvider = Provider<List<AppUser>>((ref) => [
+  AppUser(id: '1', name: 'Sage', email: 'sage@example.com', avatarUrl: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=150', planType: 'Premium'),
+  AppUser(id: '2', name: 'Alex', email: 'alex@example.com', avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=150', planType: 'Basic'),
+  AppUser(id: '3', name: 'Jordan', email: 'jordan@example.com', avatarUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=150', planType: 'Premium'),
+]);
+
+final currentUserProvider = StateProvider<AppUser>((ref) {
+  return ref.read(allUsersProvider).first;
+});
+
+final assessmentProvider = StateProvider<AssessmentData>((ref) {
+  return AssessmentData();
+});
+
+class TaskNotifier extends Notifier<List<TaskItem>> {
+  @override
+  List<TaskItem> build() {
+    return [
+      TaskItem(id: 't1', title: 'Water Intake', description: 'Drink 1L of water', time: '10:00 AM', frequency: 'Daily', type: 'health'),
+      TaskItem(id: 't2', title: 'Journaling', description: 'Write your morning reflection', time: '11:00 AM', frequency: 'Daily', type: 'journaling'),
+      TaskItem(id: 't3', title: 'Take Medicine', description: 'Vitamins & Supplements', time: '02:00 PM', frequency: 'Daily', type: 'health'),
+      TaskItem(id: 't4', title: 'Evening Walk', description: 'Walk for 30 minutes', time: '05:00 PM', frequency: 'Daily', type: 'health'),
+    ];
+  }
+
+  void addTask(TaskItem task) {
+    state = [...state, task];
+  }
+
+  void toggleTask(String id) {
+    state = [
+      for (final t in state)
+        if (t.id == id) t.copyWith(isCompleted: !t.isCompleted) else t,
+    ];
+  }
+}
+
+final taskProvider = NotifierProvider<TaskNotifier, List<TaskItem>>(() {
+  return TaskNotifier();
+});

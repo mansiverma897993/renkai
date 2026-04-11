@@ -1,291 +1,462 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_colors.dart';
 import '../wellbeing/presentation/wellbeing_screen.dart';
 import '../therapy/presentation/therapy_screen.dart';
 import '../support/support_screen.dart';
+import '../data/mock_providers.dart';
+import '../../shared/widgets/renkai_logo.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   @override
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  void _showAddTaskSheet() {
+    final titleCtrl = TextEditingController();
+    final descCtrl = TextEditingController();
+    final timeCtrl = TextEditingController(text: '12:00 PM');
+    final freqCtrl = TextEditingController(text: 'Daily');
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return Container(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(ctx).viewInsets.bottom,
+            left: 20, right: 20, top: 20
+          ),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(child: Container(width: 40, height: 5, decoration: const BoxDecoration(color: Colors.grey, borderRadius: BorderRadius.all(Radius.circular(10))))),
+              const SizedBox(height: 20),
+              const Text('Add New Task', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: Colors.black)),
+              const SizedBox(height: 20),
+              TextField(
+                controller: titleCtrl, 
+                decoration: InputDecoration(
+                  labelText: 'Task Title',
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                )
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: descCtrl, 
+                decoration: InputDecoration(
+                  labelText: 'Description',
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                )
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: timeCtrl, 
+                      decoration: InputDecoration(
+                        labelText: 'Time (e.g. 10:00 AM)',
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      )
+                    )
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: TextField(
+                      controller: freqCtrl, 
+                      decoration: InputDecoration(
+                        labelText: 'Frequency',
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      )
+                    )
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton(
+                onPressed: () {
+                  if (titleCtrl.text.isNotEmpty) {
+                    ref.read(taskProvider.notifier).addTask(TaskItem(
+                      id: DateTime.now().millisecondsSinceEpoch.toString(),
+                      title: titleCtrl.text,
+                      description: descCtrl.text,
+                      time: timeCtrl.text,
+                      frequency: freqCtrl.text,
+                      type: 'custom',
+                    ));
+                    Navigator.pop(ctx);
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary, 
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                  elevation: 0,
+                ),
+                child: const Text('Add Task', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16)),
+              ),
+              const SizedBox(height: 30),
+            ],
+          ),
+        );
+      }
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final user = ref.watch(currentUserProvider);
+    final tasks = ref.watch(taskProvider);
+    final wellbeing = ref.watch(wellbeingProvider);
+    
+    final completedTasks = tasks.where((t) => t.isCompleted).length;
+    final totalTasks = tasks.length;
+    final completionPct = totalTasks > 0 ? completedTasks / totalTasks : 0.0;
+
     return Scaffold(
       backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Top Section with curved yellow shape & logo
-            SizedBox(
-              height: 280,
-              child: Stack(
-                children: [
-                  // Circular decoration for yellow shape
-                  Positioned(
-                    top: -100,
-                    left: -100,
-                    child: Container(
-                      width: 450,
-                      height: 450,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFFFC107), // Yellow curve
-                        shape: BoxShape.circle,
-                      ),
+      body: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                // Curved Header Background
+                Positioned(
+                  top: -150,
+                  left: -100,
+                  right: -100,
+                  child: Container(
+                    height: 480,
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFFFC107), // Yellow curve
+                      shape: BoxShape.circle,
                     ),
                   ),
-                  Positioned(
-                    top: -120,
-                    left: -120,
-                    child: Container(
-                      width: 450,
-                      height: 450,
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withOpacity(0.9), // Orange shape behind
-                        shape: BoxShape.circle,
-                      ),
+                ),
+                Positioned(
+                  top: -180,
+                  left: -120,
+                  right: -50,
+                  child: Container(
+                    height: 480,
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withOpacity(0.9), // Orange accent
+                      shape: BoxShape.circle,
                     ),
                   ),
-                  Positioned(
-                    top: -100,
-                    left: -100,
-                    child: Container(
-                      width: 420,
-                      height: 420,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFFFCA28), // Golden Yellow curve
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                  ),
-                  
-                  SafeArea(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                ),
+                
+                SafeArea(
+                  bottom: false,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Top Nav Array
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.menu, size: 30, color: Colors.black),
+                              onPressed: () {},
+                            ),
+                            Row(
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.add_circle, size: 38, color: Colors.black87),
+                                  onPressed: _showAddTaskSheet,
+                                ),
+                                const SizedBox(width: 10),
+                                Container(
+                                  width: 50, height: 50,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(color: AppColors.primary, width: 2),
+                                    image: DecorationImage(image: NetworkImage(user.avatarUrl), fit: BoxFit.cover),
+                                  ),
+                                ),
+                              ],
+                            )
+                          ],
+                        ),
+                        
+                        const SizedBox(height: 20),
+                        
+                        // Welcome Text
+                        Text(
+                          'Welcome\n${user.name}',
+                          style: const TextStyle(fontSize: 38, fontWeight: FontWeight.w900, color: Colors.black, height: 1.1),
+                        ),
+                        
+                        const SizedBox(height: 30),
+                        
+                        // NEW Beautiful User Dashboard Component
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(24),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.9),
+                            borderRadius: BorderRadius.circular(24),
+                            boxShadow: [
+                              BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 20, offset: const Offset(0, 10)),
+                            ],
+                            border: Border.all(color: Colors.white, width: 2),
+                          ),
+                          child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Icon(Icons.menu, size: 35, color: Colors.black),
-                              // Top Right Logo
-                              Column(
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
+                                  const Text('Daily Pulse', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Colors.black)),
                                   Container(
-                                    width: 60,
-                                    height: 60,
-                                    decoration: const BoxDecoration(
-                                      color: AppColors.primary,
-                                      shape: BoxShape.circle,
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                    decoration: BoxDecoration(color: AppColors.primary.withOpacity(0.2), borderRadius: BorderRadius.circular(20)),
+                                    child: Text('${(completionPct * 100).toInt()}% Done', style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold, fontSize: 12)),
+                                  )
+                                ],
+                              ),
+                              const SizedBox(height: 20),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildDashMetric(
+                                      icon: Icons.mood, color: Colors.orange, title: 'Mood',
+                                      value: '${(wellbeing.moodTracker * 10).toInt()}/10',
                                     ),
-                                    child: const Icon(Icons.spa_rounded, color: Colors.white, size: 35),
                                   ),
-                                  const Text('RENKAI', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black)),
+                                  Expanded(
+                                    child: _buildDashMetric(
+                                      icon: Icons.task_alt, color: Colors.green, title: 'Tasks',
+                                      value: '$completedTasks/$totalTasks',
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: _buildDashMetric(
+                                      icon: Icons.water_drop, color: Colors.blue, title: 'Water',
+                                      value: '${wellbeing.waterIntake}L',
+                                    ),
+                                  ),
                                 ],
                               ),
                             ],
                           ),
-                          const SizedBox(height: 10),
-                          const Text(
-                            'Welcome\nSage',
-                            style: TextStyle(
-                              fontSize: 38,
-                              fontWeight: FontWeight.w900,
-                              color: Colors.black,
-                              height: 1.1,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  
-                  // Reminders Card
-                  Positioned(
-                    right: 20,
-                    bottom: 0,
-                    child: Container(
-                      width: 200,
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary, // Orange remidners card
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Reminders',
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Colors.black),
-                          ),
-                          const SizedBox(height: 8),
-                          _buildReminderItem('Take Medicine @ 2:00pm'),
-                          const SizedBox(height: 8),
-                          _buildReminderItem('Evening Walk @ 5:00pm'),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            
-            const SizedBox(height: 30),
-            
-            // Today's Progress Section
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              child: Text(
-                'Today\'s Progress',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black),
-              ),
-            ),
-            
-            const SizedBox(height: 10),
-            
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
-              color: const Color(0xFFFFC107), // Yellow background banner
-              child: Row(
-                children: [
-                  // Donut chart text left
-                  const Expanded(
-                    flex: 1,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        FittedBox(fit: BoxFit.scaleDown, child: Text('Remaining', style: TextStyle(fontSize: 10, color: Colors.black))),
-                        Text('33%', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black)),
-                        SizedBox(height: 25), // spacer for pie
+                        ),
                       ],
                     ),
                   ),
-                  
-                  // Donut Chart Placeholder
-                  Container(
-                    width: 90,
-                    height: 90,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: const Color(0xFF00C853), // Green pie part
-                      border: Border.all(color: Colors.white, width: 12),
-                    ),
-                    child: Container(
-                      margin: const EdgeInsets.all(15),
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Color(0xFFFFC107), // yellow center punch
+                ),
+              ],
+            ),
+          ),
+          
+          const SliverToBoxAdapter(child: SizedBox(height: 40)),
+          
+          // Tasks Section
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Your Tasks', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black)),
+                      TextButton(
+                        onPressed: _showAddTaskSheet, 
+                        child: const Text('+ Add', style: TextStyle(color: AppColors.primary, fontWeight: FontWeight.bold))
                       ),
+                    ],
+                  ),
+                  const SizedBox(height: 15),
+                  ...tasks.map((task) => _buildTaskTile(task)).toList(),
+                  if (tasks.isEmpty) const Text("No tasks for today. Add some!", style: TextStyle(color: Colors.grey)),
+                ],
+              ),
+            ),
+          ),
+          
+          const SliverToBoxAdapter(child: SizedBox(height: 40)),
+
+          // Shifted Progress Section
+          const SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: Text('Performance Analytics', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black)),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFFC107).withOpacity(0.15),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: const Color(0xFFFFC107).withOpacity(0.3)),
+              ),
+              child: Row(
+                children: [
+                  SizedBox(
+                    width: 100, height: 100,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        CircularProgressIndicator(
+                          value: completionPct, 
+                          strokeWidth: 12, 
+                          color: const Color(0xFF00C853),
+                          backgroundColor: Colors.grey[200],
+                        ),
+                        Text('${(completionPct * 100).toInt()}%', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 20, color: Colors.black)),
+                      ],
                     ),
                   ),
-                  
-                  // Right sides text
-                  const Expanded(
-                    flex: 2,
-                    child: Padding(
-                      padding: EdgeInsets.only(left: 10),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(height: 40), // spacer for pie
-                          FittedBox(fit: BoxFit.scaleDown, child: Text('Completed', style: TextStyle(fontSize: 10, color: Colors.black))),
-                          Text('67%', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black)),
-                        ],
-                      ),
-                    ),
-                  ),
-                  
-                  // Progress Bars
+                  const SizedBox(width: 20),
                   Expanded(
-                    flex: 3,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildProgressBar('Stress Levels', 0.5),
-                        const SizedBox(height: 10),
-                        _buildProgressBar('Task Completion', 0.8),
-                        const SizedBox(height: 10),
-                        _buildProgressBar('Mood Tracker', 0.9),
+                        _buildProgressBar('Stress Levels', wellbeing.stressLevels),
+                        const SizedBox(height: 12),
+                        _buildProgressBar('Quality Sleep', wellbeing.qualitySleep),
+                        const SizedBox(height: 12),
+                        _buildProgressBar('Mood Tracker', wellbeing.moodTracker),
                       ],
                     ),
                   ),
-                  const SizedBox(width: 10),
                 ],
               ),
             ),
-            
-            const SizedBox(height: 30),
-            
-            // Self Help Tools Section
-            const Padding(
+          ),
+
+          const SliverToBoxAdapter(child: SizedBox(height: 20)),
+
+          // Self Help Tools Section
+          const SliverToBoxAdapter(
+            child: Padding(
               padding: EdgeInsets.symmetric(horizontal: 20),
-              child: Text(
-                'Self Help Tools',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black),
-              ),
+              child: Text('Self Help Tools', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black)),
             ),
-            const SizedBox(height: 15),
-            
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
               child: Container(
                 padding: const EdgeInsets.all(15),
-                decoration: BoxDecoration(
-                  color: AppColors.primary,
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                child: Column(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(15),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFFCA28), // Golden Yellow
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          _buildToolItem(context, Icons.menu_book, 'Journaling', () {}),
-                          _buildToolItem(context, Icons.checklist_rtl_rounded, 'To-Do List', () {}),
-                          _buildToolItem(context, Icons.psychology, 'Wellbeing', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const WellbeingScreen()))),
-                          _buildToolItem(context, Icons.medical_services, 'Therapy', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TherapyScreen()))),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    const Text('See more>>>', style: TextStyle(fontSize: 12, decoration: TextDecoration.underline, color: Colors.black)),
-                  ],
+                decoration: BoxDecoration(color: AppColors.primary, borderRadius: BorderRadius.circular(20)),
+                child: Container(
+                  padding: const EdgeInsets.all(15),
+                  decoration: BoxDecoration(color: const Color(0xFFFFCA28), borderRadius: BorderRadius.circular(15)),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _buildToolItem(context, Icons.menu_book, 'Journaling', () {
+                        // Using explicit push for demo
+                        Navigator.push(context, MaterialPageRoute(builder: (_) => const Scaffold(body: Center(child: Text("Journal Tool")))));
+                      }),
+                      _buildToolItem(context, Icons.checklist_rtl_rounded, 'To-Do List', () {}),
+                      _buildToolItem(context, Icons.psychology, 'Wellbeing', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const WellbeingScreen()))),
+                      _buildToolItem(context, Icons.medical_services, 'Therapy', () => Navigator.push(context, MaterialPageRoute(builder: (_) => const TherapyScreen()))),
+                    ],
+                  ),
                 ),
               ),
             ),
-            
-            const SizedBox(height: 40),
-          ],
-        ),
+          ),
+          
+          const SliverToBoxAdapter(child: SizedBox(height: 80)),
+        ],
       ),
-      
       floatingActionButton: FloatingActionButton(
         onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SupportScreen())),
-        backgroundColor: Colors.white, // Chatbot floating button
-        elevation: 4,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
+        backgroundColor: Colors.white,
+        elevation: 6,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
         child: const Icon(Icons.support_agent_rounded, color: Colors.blueAccent, size: 30),
       ),
     );
   }
 
-  Widget _buildReminderItem(String text) {
+  Widget _buildDashMetric({required IconData icon, required Color color, required String title, required String value}) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(color: color.withOpacity(0.1), shape: BoxShape.circle),
+          child: Icon(icon, color: color, size: 28),
+        ),
+        const SizedBox(height: 8),
+        Text(title, style: TextStyle(fontSize: 12, color: Colors.grey[600], fontWeight: FontWeight.w600)),
+        const SizedBox(height: 4),
+        Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: Colors.black)),
+      ],
+    );
+  }
+
+  Widget _buildTaskTile(TaskItem task) {
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFCA28),
-        border: Border.all(color: Colors.black, width: 0.5),
-        borderRadius: BorderRadius.circular(4),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.grey[200]!),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4)),
+        ],
       ),
-      child: Text(text, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: Colors.black)),
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        leading: GestureDetector(
+          onTap: () => ref.read(taskProvider.notifier).toggleTask(task.id),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            width: 28, height: 28,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: task.isCompleted ? const Color(0xFF00C853) : Colors.transparent,
+              border: Border.all(color: task.isCompleted ? const Color(0xFF00C853) : Colors.grey[400]!, width: 2),
+            ),
+            child: task.isCompleted ? const Icon(Icons.check, size: 18, color: Colors.white) : null,
+          ),
+        ),
+        title: Text(
+          task.title,
+          style: TextStyle(
+            fontSize: 16, fontWeight: FontWeight.bold,
+            decoration: task.isCompleted ? TextDecoration.lineThrough : null,
+            color: task.isCompleted ? Colors.grey : Colors.black87,
+          ),
+        ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 4),
+            Text(task.description, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                Icon(Icons.access_time, size: 12, color: Colors.grey[500]),
+                const SizedBox(width: 4),
+                Text(task.time, style: TextStyle(fontSize: 11, color: Colors.grey[500], fontWeight: FontWeight.w500)),
+              ],
+            )
+          ],
+        ),
+      ),
     );
   }
 
@@ -293,15 +464,14 @@ class HomeScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black)),
-        const SizedBox(height: 2),
+        Text(title, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black87)),
+        const SizedBox(height: 6),
         Container(
-          height: 8,
+          height: 10,
           width: double.infinity,
           decoration: BoxDecoration(
             color: Colors.white,
-            border: Border.all(color: Colors.black, width: 1),
-            borderRadius: BorderRadius.circular(4),
+            borderRadius: BorderRadius.circular(5),
           ),
           child: FractionallySizedBox(
             alignment: Alignment.centerLeft,
@@ -309,7 +479,7 @@ class HomeScreen extends StatelessWidget {
             child: Container(
               decoration: BoxDecoration(
                 color: const Color(0xFF00C853),
-                borderRadius: BorderRadius.circular(3),
+                borderRadius: BorderRadius.circular(5),
               ),
             ),
           ),
@@ -323,9 +493,13 @@ class HomeScreen extends StatelessWidget {
       onTap: onTap,
       child: Column(
         children: [
-          Icon(icon, size: 35, color: Colors.blue[800]),
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(color: Colors.white.withOpacity(0.3), shape: BoxShape.circle),
+            child: Icon(icon, size: 30, color: Colors.blue[900]),
+          ),
           const SizedBox(height: 8),
-          Text(label, style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black)),
+          Text(label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.black87)),
         ],
       ),
     );

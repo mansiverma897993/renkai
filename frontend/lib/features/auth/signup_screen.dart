@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
-import '../mood/mood_selector_screen.dart';
+import 'assessment_screen.dart';
 
 class SignupScreen extends StatelessWidget {
   const SignupScreen({super.key});
@@ -157,7 +157,7 @@ class SignupScreen extends StatelessWidget {
                   ElevatedButton(
                     onPressed: () {
                       Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const MoodSelectorScreen()),
+                        MaterialPageRoute(builder: (_) => const AssessmentScreen()),
                       );
                     },
                     style: ElevatedButton.styleFrom(
