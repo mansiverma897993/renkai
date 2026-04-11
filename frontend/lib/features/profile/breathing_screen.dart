@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../core/theme/app_colors.dart';
+import '../../app_shell.dart';
 
 class BreathingScreen extends StatefulWidget {
   const BreathingScreen({super.key});
@@ -12,6 +13,14 @@ class BreathingScreen extends StatefulWidget {
 class _BreathingScreenState extends State<BreathingScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
+
+  void _safePop(BuildContext context) {
+    if (Navigator.canPop(context)) {
+      Navigator.pop(context);
+    } else {
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const AppShell()));
+    }
+  }
   late Animation<double> _animation;
   String _status = 'Get Ready';
   int _secondsRemaining = 4;
@@ -88,7 +97,7 @@ class _BreathingScreenState extends State<BreathingScreen>
             right: 20,
             child: IconButton(
               icon: const Icon(Icons.close, color: Colors.white70, size: 30),
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => _safePop(context),
             ),
           ),
           

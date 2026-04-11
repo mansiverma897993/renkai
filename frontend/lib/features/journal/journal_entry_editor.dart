@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../app_shell.dart';
+import '../data/mock_providers.dart';
 import '../../core/theme/app_colors.dart';
 import '../../shared/widgets/glass_container.dart';
 
-class JournalEntryEditor extends StatefulWidget {
+class JournalEntryEditor extends ConsumerStatefulWidget {
   const JournalEntryEditor({super.key});
 
   @override
-  State<JournalEntryEditor> createState() => _JournalEntryEditorState();
+  ConsumerState<JournalEntryEditor> createState() => _JournalEntryEditorState();
 }
 
-class _JournalEntryEditorState extends State<JournalEntryEditor> {
+class _JournalEntryEditorState extends ConsumerState<JournalEntryEditor> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _bodyController = TextEditingController();
   int? _selectedMood;
@@ -24,12 +27,37 @@ class _JournalEntryEditorState extends State<JournalEntryEditor> {
     super.dispose();
   }
 
+  void _safePop(BuildContext context) {
+    if (Navigator.canPop(context)) {
+      Navigator.pop(context);
+    } else {
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const AppShell()));
+    }
+  }
+
   void _save() async {
+    if (_titleController.text.isEmpty || _selectedMood == null) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please add a title and mood.')));
+      return;
+    }
+    
     HapticFeedback.mediumImpact();
     setState(() => _isSaving = true);
-    await Future.delayed(const Duration(milliseconds: 800));
+    
+    // Create new entry
+    final entry = JournalEntry(
+      title: _titleController.text,
+      preview: _bodyController.text.isEmpty ? 'No text content...' : _bodyController.text.substring(0, _bodyController.text.length > 50 ? 50 : _bodyController.text.length) + '...',
+      emoji: _moods[_selectedMood!],
+      date: 'Just now',
+      score: (_selectedMood! + 1) * 2.0, // Scale mood to roughly match 0-10 
+    );
+    
+    ref.read(journalProvider.notifier).addEntry(entry);
+    
+    await Future.delayed(const Duration(milliseconds: 300));
     if (mounted) {
-      Navigator.pop(context);
+      _safePop(context);
     }
   }
 

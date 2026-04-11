@@ -3,9 +3,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/mock_providers.dart';
 import '../../../shared/widgets/bottom_assist_buttons.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../app_shell.dart';
 
 class TherapyScreen extends ConsumerWidget {
   const TherapyScreen({super.key});
+
+  void _safePop(BuildContext context) {
+    if (Navigator.canPop(context)) {
+      Navigator.pop(context);
+    } else {
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const AppShell()));
+    }
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -19,7 +28,7 @@ class TherapyScreen extends ConsumerWidget {
           backgroundColor: AppColors.primary,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black, size: 28),
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => _safePop(context),
           ),
           centerTitle: true,
           title: Column(
@@ -67,7 +76,7 @@ class TherapyScreen extends ConsumerWidget {
                 const Text('Meet the Team', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Colors.black)),
                 const SizedBox(height: 12),
                 SizedBox(
-                  height: 90,
+                  height: 110, // Increased to fix 2px bottom overflow bug
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     itemCount: team.length,
@@ -147,7 +156,7 @@ class TherapyScreen extends ConsumerWidget {
                     ],
                   ),
                 ),
-                const SizedBox(height: 80),
+                const SizedBox(height: 130), // Increased from 80 to prevent floating buttons overlapping the Book Now button
               ],
             ),
           ),

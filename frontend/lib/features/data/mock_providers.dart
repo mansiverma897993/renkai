@@ -46,10 +46,10 @@ final chatProvider = StateProvider<List<ChatMessage>>((ref) => [
 ]);
 
 final therapyTeamProvider = Provider<List<TherapyTeam>>((ref) => [
-  TherapyTeam(name: "Dr. Maahi Madaan", title: "Therapist", imageUrl: "https://i.pravatar.cc/150?img=1"),
-  TherapyTeam(name: "Dr. Jessica", title: "Therapist", imageUrl: "https://i.pravatar.cc/150?img=5"),
-  TherapyTeam(name: "Dr. Mellisa Jones", title: "Therapist", imageUrl: "https://i.pravatar.cc/150?img=9"),
-  TherapyTeam(name: "Dr. Rahul Menon", title: "Therapist", imageUrl: "https://i.pravatar.cc/150?img=11"),
+  TherapyTeam(name: "Dr. Maahi Madaan", title: "Therapist", imageUrl: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150"),
+  TherapyTeam(name: "Dr. Jessica", title: "Therapist", imageUrl: "https://images.unsplash.com/photo-1594824432258-297ab13f41c6?w=150"),
+  TherapyTeam(name: "Dr. Mellisa Jones", title: "Therapist", imageUrl: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150"),
+  TherapyTeam(name: "Dr. Rahul Menon", title: "Therapist", imageUrl: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=150"),
 ]);
 
 final communityProvider = Provider<List<CommunityChat>>((ref) => [
@@ -69,3 +69,30 @@ final wellbeingProvider = StateProvider<WellbeingMetrics>((ref) => WellbeingMetr
   waterIntake: 2,
   waterGoal: 2.5,
 ));
+
+class JournalEntry {
+  final String title, preview, emoji, date;
+  final double score;
+  JournalEntry({required this.title, required this.preview, required this.emoji, required this.date, required this.score});
+}
+
+class JournalNotifier extends Notifier<List<JournalEntry>> {
+  @override
+  List<JournalEntry> build() {
+    return [
+      JournalEntry(title: 'Morning Reflection', preview: 'Today feels like a fresh start. I slept well and...', emoji: '😁', date: 'Today', score: 8.0),
+      JournalEntry(title: 'Work Anxiety', preview: 'Felt overwhelmed during the meeting. My chest was tight...', emoji: '😕', date: 'Yesterday', score: 4.0),
+      JournalEntry(title: 'Gratitude Moment', preview: 'Had coffee with a friend. Realized how much I needed that...', emoji: '😊', date: '2 days ago', score: 9.0),
+      JournalEntry(title: 'Late Night Thoughts', preview: 'Can\'t sleep. My mind keeps racing about tomorrow...', emoji: '😢', date: '3 days ago', score: 3.0),
+      JournalEntry(title: 'Breakthrough!', preview: 'Therapy was incredible today. I finally understand why...', emoji: '🙂', date: '4 days ago', score: 7.0),
+    ];
+  }
+
+  void addEntry(JournalEntry entry) {
+    state = [entry, ...state];
+  }
+}
+
+final journalProvider = NotifierProvider<JournalNotifier, List<JournalEntry>>(() {
+  return JournalNotifier();
+});

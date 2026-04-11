@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../shared/glass_container.dart';
+import '../../core/theme/app_colors.dart';
+import '../../app_shell.dart';
 
 class MoodEntryScreen extends StatefulWidget {
   const MoodEntryScreen({super.key});
@@ -12,6 +15,14 @@ class _MoodEntryScreenState extends State<MoodEntryScreen> {
   double _moodScore = 5;
   final List<String> _tags = ["Work", "Sleep", "Stress", "Social", "Exercise", "Family"];
   final Set<String> _selectedTags = {};
+
+  void _safePop(BuildContext context) {
+    if (Navigator.canPop(context)) {
+      Navigator.pop(context);
+    } else {
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const AppShell()));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +99,7 @@ class _MoodEntryScreenState extends State<MoodEntryScreen> {
               child: ElevatedButton(
                 onPressed: () {
                   // TODO: Send to Spring Boot Backend API
-                  Navigator.pop(context);
+                  _safePop(context);
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).primaryColor,

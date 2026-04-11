@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../wellbeing/presentation/wellbeing_screen.dart';
 import '../therapy/presentation/therapy_screen.dart';
+import '../support/support_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -155,24 +156,24 @@ class HomeScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Text('Remaining', style: TextStyle(fontSize: 10, color: Colors.black)),
+                        FittedBox(fit: BoxFit.scaleDown, child: Text('Remaining', style: TextStyle(fontSize: 10, color: Colors.black))),
                         Text('33%', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black)),
-                        SizedBox(height: 40), // spacer for pie
+                        SizedBox(height: 25), // spacer for pie
                       ],
                     ),
                   ),
                   
                   // Donut Chart Placeholder
                   Container(
-                    width: 140,
-                    height: 140,
+                    width: 90,
+                    height: 90,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: const Color(0xFF00C853), // Green pie part
-                      border: Border.all(color: Colors.white, width: 20),
+                      border: Border.all(color: Colors.white, width: 12),
                     ),
                     child: Container(
-                      margin: const EdgeInsets.all(25),
+                      margin: const EdgeInsets.all(15),
                       decoration: const BoxDecoration(
                         shape: BoxShape.circle,
                         color: Color(0xFFFFC107), // yellow center punch
@@ -188,8 +189,8 @@ class HomeScreen extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          SizedBox(height: 60), // spacer for pie
-                          Text('Completed', style: TextStyle(fontSize: 10, color: Colors.black)),
+                          SizedBox(height: 40), // spacer for pie
+                          FittedBox(fit: BoxFit.scaleDown, child: Text('Completed', style: TextStyle(fontSize: 10, color: Colors.black))),
                           Text('67%', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.black)),
                         ],
                       ),
@@ -266,7 +267,7 @@ class HomeScreen extends StatelessWidget {
       ),
       
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SupportScreen())),
         backgroundColor: Colors.white, // Chatbot floating button
         elevation: 4,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),

@@ -3,9 +3,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/mock_providers.dart';
 import '../../../shared/widgets/bottom_assist_buttons.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../app_shell.dart';
 
 class CommunityScreen extends ConsumerWidget {
   const CommunityScreen({super.key});
+
+  void _safePop(BuildContext context) {
+    if (Navigator.canPop(context)) {
+      Navigator.pop(context);
+    } else {
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const AppShell()));
+    }
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -19,7 +28,7 @@ class CommunityScreen extends ConsumerWidget {
           backgroundColor: AppColors.primary,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black, size: 28),
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => _safePop(context),
           ),
           centerTitle: true,
           title: Column(

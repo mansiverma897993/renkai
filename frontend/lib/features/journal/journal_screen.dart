@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../data/mock_providers.dart';
 import '../../core/theme/app_colors.dart';
 import '../../shared/widgets/gradient_background.dart';
 import '../../shared/widgets/glass_container.dart';
@@ -8,24 +10,18 @@ import 'widgets/journal_card.dart';
 import 'widgets/mood_chart.dart';
 import 'widgets/insight_card.dart';
 
-class JournalScreen extends StatefulWidget {
+class JournalScreen extends ConsumerStatefulWidget {
   const JournalScreen({super.key});
 
   @override
-  State<JournalScreen> createState() => _JournalScreenState();
+  ConsumerState<JournalScreen> createState() => _JournalScreenState();
 }
 
-class _JournalScreenState extends State<JournalScreen>
+class _JournalScreenState extends ConsumerState<JournalScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
-  final _entries = const [
-    _Entry('Morning Reflection', 'Today feels like a fresh start. I slept well and...', '😊', 'Today', 8.0),
-    _Entry('Work Anxiety', "Felt overwhelmed during the meeting. My chest was tight...", '😕', 'Yesterday', 4.0),
-    _Entry('Gratitude Moment', 'Had coffee with a friend. Realized how much I needed that...', '😁', '2 days ago', 9.0),
-    _Entry('Late Night Thoughts', "Can't sleep. My mind keeps racing about tomorrow...", '😢', '3 days ago', 3.0),
-    _Entry('Breakthrough!', 'Therapy was incredible today. I finally understand why...', '🙂', '4 days ago', 7.0),
-  ];
+
 
   @override
   void initState() {
@@ -119,28 +115,33 @@ class _JournalScreenState extends State<JournalScreen>
                 controller: _tabController,
                 children: [
                   // Entries tab
-                  ListView.builder(
-                    physics: const BouncingScrollPhysics(),
-                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 100),
-                    itemCount: _entries.length,
-                    itemBuilder: (context, index) {
-                      final e = _entries[index];
-                      return JournalCard(
-                        title: e.title,
-                        preview: e.preview,
-                        emoji: e.emoji,
-                        date: e.date,
-                        moodColor: AppColors.moodColor(e.score),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const JournalEntryEditor(),
-                            ),
+                  Consumer(
+                    builder: (context, ref, child) {
+                      final entries = ref.watch(journalProvider);
+                      return ListView.builder(
+                        physics: const BouncingScrollPhysics(),
+                        padding: const EdgeInsets.fromLTRB(20, 8, 20, 100),
+                        itemCount: entries.length,
+                        itemBuilder: (context, index) {
+                          final e = entries[index];
+                          return JournalCard(
+                            title: e.title,
+                            preview: e.preview,
+                            emoji: e.emoji,
+                            date: e.date,
+                            moodColor: AppColors.moodColor(e.score),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const JournalEntryEditor(),
+                                ),
+                              );
+                            },
                           );
                         },
                       );
-                    },
+                    }
                   ),
 
                   // Insights tab
@@ -225,8 +226,4 @@ class _JournalScreenState extends State<JournalScreen>
   }
 }
 
-class _Entry {
-  final String title, preview, emoji, date;
-  final double score;
-  const _Entry(this.title, this.preview, this.emoji, this.date, this.score);
-}
+
