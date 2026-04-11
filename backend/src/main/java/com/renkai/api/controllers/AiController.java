@@ -20,15 +20,12 @@ public class AiController {
     }
 
     @PostMapping("/chat")
-    public ResponseEntity<Map<String, String>> chatWithCompanion(@RequestBody Map<String, Object> payload) {
+    public ResponseEntity<Map<String, Object>> chatWithCompanion(@RequestBody Map<String, Object> payload) {
         String message = (String) payload.getOrDefault("message", "");
         Integer moodScore = (Integer) payload.getOrDefault("moodScore", 5);
         String tags = (String) payload.getOrDefault("tags", "none");
 
-        String responseText = aiService.generateCompanionResponse(message, moodScore, tags);
-
-        Map<String, String> response = new HashMap<>();
-        response.put("reply", responseText);
+        Map<String, Object> response = aiService.generateCompanionResponse(message, moodScore, tags);
 
         return ResponseEntity.ok(response);
     }
